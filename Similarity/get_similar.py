@@ -8,10 +8,20 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import euclidean_distances
 import csv
+import argparse
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-i',  help="tsv file with phenotype codes", required=True)
+parser.add_argument('-o',  help="output file that contain cosine similarities", required=True)
+
+args = parser.parse_args()
+
+input_file = args.i
+output_file = args.o
 
 # Sample corpus ; remove the filters if the phenotype library has proper names and no duplicates
 # remove the keywords from merged data
-data = pd.read_csv('phenotypes_codes.tsv', usecols=[0,1,2,3], encoding='utf-8', lineterminator='\n', sep="\t") 
+data = pd.read_csv(input_file, usecols=[0,1,2,3], encoding='utf-8', lineterminator='\n', sep="\t") 
 data.columns = data.columns.str.replace('\r', '')
 data['merged_data'] = data['merged_data'].str.strip(r'\r')
 data = data.replace('\\r','',regex=True)
@@ -20,7 +30,7 @@ data['name'] = data['name'].str.replace("ibd ohdsi",'')
 data['merged_data'] = data['merged_data'].str.replace("ibd ohdsi",'')
 #data.to_csv("phen_with_id.tsv")
 print(data)
-fO = open("cosine_similar_tres.txt",'w')
+fO = open(output_file,'w')
 
 data_10  = data.tail(5)
 # removing special characters and stop words from the text

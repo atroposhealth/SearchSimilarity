@@ -1,8 +1,18 @@
 import pandas as pd
+import argparse
+parser = argparse.ArgumentParser()
+
+parser.add_argument('-i',  help="tsv file downloaded from phenotype library", required=True)
+parser.add_argument('-o',  help="combined file with required fields", required=True)
+
+args = parser.parse_args()
+
+input_file = args.i
+output_file = args.o
 
 #this code filters ICD10 codes from the phenotype library. If you need all vocabs please delete the lines for filtering!
 
-data = pd.read_csv(r'C:\Users\tramy\Documents\ohdsi-table-raj\phenotype_raj_v2_202206081534.csv', usecols=[0,1,9,10], encoding='utf-8', lineterminator='\n')
+data = pd.read_csv(input_file, usecols=[0,1,9,10], encoding='utf-8', lineterminator='\n')
 
 data["src_incl_vocab"]=data["src_incl_vocab"].astype(str)
 data["src_incl_code"]=data["src_incl_code"].astype(str)
@@ -36,12 +46,12 @@ for index, row in data.iterrows():
             merged_code = merged_code + vocab_list[i] + "_" + code_list[i] + ","
     
     merged_code_list = list(merged_code.split(","))
-    for item in merged_code_list:
+    for item in merged_code_list: #remove these lines if you require all the vocabs!
         icd10_list = []
         for item in merged_code_list:
             item = item.lower()
             #print(item)
-            if "icd10_" in item:
+            if "icd10_" in item: 
                 icd10_list.append(item)
         # print(icd10_list)
 
@@ -53,7 +63,7 @@ print(len(df))
 df['merged_data'] = df[df.columns[1:]].apply(lambda x: ','.join(x.dropna().astype(str)),axis=1)
 df['merged_data'] = df['merged_data'].str.replace('[','')
 df['merged_data'] = df['merged_data'].str.replace(']','')
-df.to_csv("phenotypes_codes.tsv", sep='\t', encoding='utf-8', index = False)
+df.to_csv(output_file, sep='\t', encoding='utf-8', index = False)
 print(df)
 
     
